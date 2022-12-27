@@ -49,7 +49,7 @@ menu:
 
 widgets:
 - search
-- social
+# - social
 - category
 - tagcloud
 # - archive #settings: widgetAchive
