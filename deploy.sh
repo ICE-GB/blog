@@ -4,4 +4,6 @@ cd `dirname $0`
 
 git pull
 
-hexo g
+hexo clean
+
+hexo generate
