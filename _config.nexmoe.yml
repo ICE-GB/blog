@@ -30,14 +30,14 @@ menu:
   文章归档:
     - /archive.html
     - icon-container
-  我的朋友:
-    - /PY.html
+#  我的朋友:
+#    - /PY.html
   给我赞助:
     - /donate.html
     - icon-coffee
-  关于博主:
-    - /about.html
-    - icon-info-circle
+#  关于博主:
+#    - /about.html
+#    - icon-info-circle
 
 widgets:
   - name: search
