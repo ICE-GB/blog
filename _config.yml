@@ -45,8 +45,8 @@ relative_link: false
 future: true
 highlight:
   enable: true
-  auto_detect: true
-  line_number: true
+  auto_detect: false
+  line_number: false
   line_threshold: 0
   tab_replace: '  '
   exclude_languages:
