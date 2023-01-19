@@ -239,6 +239,7 @@ https://blog.csdn.net/iamlihongwei/article/details/79377657
 
 10000 openwrt web ui
 10001 vs code server
+10002 qbittorrent
 
 ## code-server
 
