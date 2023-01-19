@@ -107,7 +107,7 @@ docker同理，挂载到`/opt/docker`
 ```bash
 cd tmp
 
-tar -czvf /tmp/overlay_backup_$(date +%Y-%m-%d-%H-%M-%Sd).tar.gz /overlay
+tar -czvf /tmp/overlay_backup_$(date +%Y-%m-%d-%H-%M-%S).tar.gz /overlay
 
 cp /tmp/overlay_backup_* /mnt/sda1/backup/openwrt/
 
