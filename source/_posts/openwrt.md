@@ -252,19 +252,20 @@ services:
     image: lscr.io/linuxserver/code-server:latest
     container_name: code-server
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=0
+      - PGID=0
       - TZ=Asia/ShangHai
       - PASSWORD=gb19980923 #optional
       - HASHED_PASSWORD= #optional
       - SUDO_PASSWORD=gb19980923 #optional
       - SUDO_PASSWORD_HASH= #optional
       - PROXY_DOMAIN=code-server.iceg.ga #optional
-      # - DEFAULT_WORKSPACE=/config/workspace #optional
+      - DEFAULT_WORKSPACE=/root/workspace #optional
+      - DOCKER_USER=root
     volumes:
-      - /root/.config:/config
-      # - /root/.local/share/code-server:/root/.local/share/code-server
-      # - /root/.ssh:/root/.ssh
+      - /root/workspace/code-server/config:/config
+      - /root/workspace:/root/workspace
+      - /root/.ssh:/root/.ssh
     ports:
       - 8443:8443
     restart: unless-stopped
@@ -295,13 +296,17 @@ docker run -it --name code-server -p 10001:8080 \
 ```bash
 #! /bin/bash
 
+apt update
+
+apt upgrade -y
+
+apt install zsh
+
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 chsh -s $(which zsh)
 
-apt update
-
-apt upgrade -y
+apt install python3 -y
 
 update-alternatives --install /usr/bin/python python /usr/bin/python3 100
 
