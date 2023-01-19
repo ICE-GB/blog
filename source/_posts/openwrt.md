@@ -287,3 +287,24 @@ git clone git@github.com:ICE-GB/blog.git
 
 git clone --recurse-submodules git@github.com:ICE-GB/tools.git
 ```
+## 外网回家
+
+### zerotier
+
+https://blog.minws.com/archives/809/
+
+- 登录zerotier，创建networt
+- http://192.168.5.1/cgi-bin/luci/admin/vpn/zerotier/general 启用zerotier，输入networkid，自动允许客户端NAT
+- 在zerotier后台，Members 成员那边对openwrt勾选Auth
+- 在zerotier后台，Managed Routes 路由管理那边添加路由。左边为内网lan网段，右边为openwrt在zerotier中的ip
+- 客户端连接network，在zerotier后台，Members 成员那边对客户端勾选Auth
+
+```
+192.168.5.0/24  via  192.168.196.153
+```
+
+#### 自建moon节点
+
+https://www.wnark.com/archives/152.html
+
+https://www.v2ex.com/t/768628
