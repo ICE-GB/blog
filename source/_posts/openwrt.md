@@ -380,7 +380,11 @@ https://www.v2ex.com/t/768628
 
 它引入了`/etc/nginx/conf.d/*.conf`作为server，`/etc/nginx/conf.d/*.location`作为location
 
-新建`/etc/nginx/conf.d/openwrt.conf`来使用luci管理页面
+### 使用nginx来访问原本的管理页面
+
+修改uhttpd的监听端口为10000
+
+新建`/etc/nginx/conf.d/openwrt.conf`来代理到`http://127.0.0.1:10000`
 
 ```
 server {
