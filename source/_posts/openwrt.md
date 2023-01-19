@@ -371,3 +371,43 @@ https://blog.minws.com/archives/809/
 https://www.wnark.com/archives/152.html
 
 https://www.v2ex.com/t/768628
+
+## nginx
+
+配置文件在`/etc/nginx/uci.conf`
+
+测试配置文件是否正确`nginx -t -c /etc/nginx/uci.conf`
+
+它引入了`/etc/nginx/conf.d/*.conf`作为server，`/etc/nginx/conf.d/*.location`作为location
+
+新建`/etc/nginx/conf.d/openwrt.conf`来使用luci管理页面
+
+```
+server {
+    listen       443 ssl;
+
+    ssl_certificate    /etc/nginx/conf.d/iceg.ga.pem;
+    ssl_certificate_key    /etc/nginx/conf.d/iceg.ga.key;
+    
+    server_name openwrt.iceg.ga;
+
+    location = /luci {
+        return 302 http://$host/cgi-bin/luci/;
+    }
+
+    location = /cgi-bin/luci/ {
+        client_max_body_size 128m;
+        proxy_pass http://127.0.0.1:10000/cgi-bin/luci/;
+    }
+
+    location = /luci-static/ {
+        alias /www/luci-static/;
+    }
+}
+```
+
+### 信任cloudflare的证书
+
+由于用的是cloudflare签的证书，需要在浏览器所在的电脑上安装cloudflare的ca根证书
+
+https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/#:~:text=Some%20origin%20web%20servers%20require%20upload%20of%20the%20Cloudflare%20Origin%20CA%20root%20certificate.%20Click%20a%20link%20below%20to%20download%20either%20an%20RSA%20and%20ECC%20version%20of%20the%20Cloudflare%20Origin%20CA%20root%20certificate%3A
