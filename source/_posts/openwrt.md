@@ -105,7 +105,6 @@ docker同理，挂载到`/opt/docker`
 如果在没有重刷固件的情况下，仅对`/overlay`进行打包并备份
 
 ```bash
-
 cd tmp
 
 tar -czvf /tmp/overlay_backup_$(date +%Y-%m-%d-%H-%M-%Sd).tar.gz /overlay
@@ -117,7 +116,6 @@ cp /tmp/overlay_backup_* /mnt/sda1/backup/openwrt/
 然后下次直接将 overlay_backup.tar.gz 上传至`/tmp`，然后清空`/overlay`并恢复备份
 
 ```bash
-
 cp /mnt/sda1/backup/openwrt/overlay_backup.tar.gz /tmp/
 
 rm -rvf /overlay/*
@@ -132,9 +130,9 @@ cd / && tar -xzvf /tmp/overlay_backup.tar.gz
 
 如果有额外的简单自定义规则，可以使用全局设置->规则设置（访问控制）->自定义规则（访问控制）
 
-域名不使用我配置的host解析的问题
+遇到的问题：
 
-是因为这个域名根据规则需要代理，被发到代理服务器那里了，结果直接就去访问了真的服务器，然后把结果返回了
+域名不使用我配置的host解析：是因为这个域名根据规则需要代理，被发到代理服务器那里了，结果直接就去访问了真的服务器，然后把结果返回了
 
 ## alist
 
@@ -143,13 +141,11 @@ https://github.com/sbwml/luci-app-alist
 How to install prebuilt packages (OpenWrt 21,22,master)
 
 - Login OpenWrt terminal (SSH)
-
 - Install `curl` package
   ```shell
   opkg update
   opkg install curl
   ```
-
 - Execute install script (Multi-architecture support)
   ```shell
   sh -c "$(curl -ksS https://raw.githubusercontent.com/sbwml/luci-app-alist/master/install.sh)"
@@ -187,7 +183,7 @@ https://yuanfangblog.xyz/technology/159.html
 
 主要思路是部署一个伪装成mb3admin.com的https服务，本地安装自己的ca根证书，用这个根证书签一个mb3admin.com的证书，验证时返回成功
 
-```nginx
+```
 location /admin/service/registration/validateDevice
   return 200 '{"cacheExpirationDays": 3650,"message": "Device Valid (limit not checked)","resultCode": "GOOD"}';
 
@@ -247,7 +243,6 @@ https://blog.csdn.net/iamlihongwei/article/details/79377657
 ## code-server
 
 ```bash
-
 mkdir -p ~/.config
 
 docker run -it --name code-server -p 10001:8080 \
