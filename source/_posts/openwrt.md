@@ -243,6 +243,35 @@ https://blog.csdn.net/iamlihongwei/article/details/79377657
 
 ## code-server
 
+### https
+
+```yaml
+version: "2.1"
+services:
+  code-server:
+    image: lscr.io/linuxserver/code-server:latest
+    container_name: code-server
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/ShangHai
+      - PASSWORD=gb19980923 #optional
+      - HASHED_PASSWORD= #optional
+      - SUDO_PASSWORD=gb19980923 #optional
+      - SUDO_PASSWORD_HASH= #optional
+      - PROXY_DOMAIN=code-server.iceg.ga #optional
+      # - DEFAULT_WORKSPACE=/config/workspace #optional
+    volumes:
+      - /root/.config:/config
+      # - /root/.local/share/code-server:/root/.local/share/code-server
+      # - /root/.ssh:/root/.ssh
+    ports:
+      - 8443:8443
+    restart: unless-stopped
+```
+
+### 无https
+
 ```bash
 mkdir -p ~/.config
 
@@ -288,6 +317,34 @@ git clone git@github.com:ICE-GB/blog.git
 
 git clone --recurse-submodules git@github.com:ICE-GB/tools.git
 ```
+## kasm
+
+> Kasm Workspaces是一个docker容器流平台，用于提供基于浏览器的桌面、应用程序和网络服务访问
+
+Ubuntu22.04桌面
+
+```bash
+sudo docker run --rm -it --shm-size=512m -p 6901:6901 -e VNC_PW=gb19980923 kasmweb/ubuntu-jammy-desktop:1.12.0
+```
+
+```yaml
+version: "2.3"
+services:
+  ubuntu:
+    image: kasmweb/ubuntu-jammy-desktop:1.12.0
+    container_name: ubuntu
+    shm_size: 512m
+    environment:
+      - VNC_PW=gb19980923 
+    volumes:
+      - /mnt/sda1:/mnt/sda1
+    ports:
+      - 6901:6901 # HTTPS port
+    devices:
+      - /dev/dri:/dev/dri # VAAPI/NVDEC/NVENC render nodes
+    restart: unless-stopped
+```
+
 ## 外网回家
 
 ### zerotier
