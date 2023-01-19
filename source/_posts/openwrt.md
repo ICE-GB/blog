@@ -105,11 +105,11 @@ docker同理，挂载到`/opt/docker`
 如果在没有重刷固件的情况下，仅对`/overlay`进行打包并备份
 
 ```bash
-cd tmp
+cd /tmp
 
 tar -czvf /tmp/overlay_backup_$(date +%Y-%m-%d-%H-%M-%S).tar.gz /overlay
 
-cp /tmp/overlay_backup_* /mnt/sda1/backup/openwrt/
+mv /tmp/overlay_backup_* /mnt/sda1/backup/openwrt/
 
 ```
 
