@@ -75,7 +75,9 @@ config device
 
 http://192.168.5.1/cgi-bin/luci/admin/network/firewall/zones
 
-![](/assets/firewall.png)
+wan 到 lan，docker 禁止入站，转发
+
+需要开的端口使用端口映射或通信规则
 
 ## 端口映射
 
@@ -210,9 +212,13 @@ openwrt 所信任的根证书位于`/etc/ssl/cert.pem`，只要修改这个文�
 
 ## qbittorrent
 
-rss 自动下载
+### rss 自动下载
 
 https://github.com/MisakaFxxk/MisakaF_Emby/tree/main/tvshows/anime
+
+### 添加tracker
+
+https://github.com/Jorman/Scripts#addqbittorrenttrackerssh
 
 ## samba 共享
 
@@ -243,7 +249,7 @@ https://blog.csdn.net/iamlihongwei/article/details/79377657
 
 ## code-server
 
-### https
+### linuxserver/code-server
 
 ```yaml
 version: "2.1"
@@ -255,11 +261,11 @@ services:
       - PUID=0
       - PGID=0
       - TZ=Asia/ShangHai
-      - PASSWORD=gb19980923 #optional
+      - PASSWORD=密码 #optional
       - HASHED_PASSWORD= #optional
-      - SUDO_PASSWORD=gb19980923 #optional
+      - SUDO_PASSWORD=密码 #optional
       - SUDO_PASSWORD_HASH= #optional
-      - PROXY_DOMAIN=code-server.iceg.ga #optional
+      - PROXY_DOMAIN=code.iceg.ga #optional
       - DEFAULT_WORKSPACE=/root/workspace #optional
       - DOCKER_USER=root
     volumes:
@@ -271,15 +277,16 @@ services:
     restart: unless-stopped
 ```
 
-### 无https
+### codercom/code-server
 
 ```bash
 mkdir -p ~/.config
 
 docker run -it --name code-server -p 10001:8080 \
-  -v "/root/.config:/root/.config" \
+  -v "/root/workspace/code-server/config/.config:/root/.config" \
   -v "/root/workspace:/root/workspace" \
-  -v "/root/.local/share/code-server:/root/.local/share/code-server" \
+  -v "/root/workspace/code-server/config/data:/root/.local/share/code-server" \
+  -v "/root/workspace/code-server/config/extensions:/root/.local/share/code-server/extensions" \
   -v "/root/.ssh:/root/.ssh" \
   -u "$(id -u):$(id -g)" \
   -e "DOCKER_USER=$USER" \
@@ -328,8 +335,10 @@ git clone --recurse-submodules git@github.com:ICE-GB/tools.git
 
 Ubuntu22.04桌面
 
+用户名为`kasm_user`
+
 ```bash
-sudo docker run --rm -it --shm-size=512m -p 6901:6901 -e VNC_PW=gb19980923 kasmweb/ubuntu-jammy-desktop:1.12.0
+sudo docker run --rm -it --shm-size=512m -p 6901:6901 -e VNC_PW=密码 kasmweb/ubuntu-jammy-desktop:1.12.0
 ```
 
 ```yaml
@@ -340,7 +349,7 @@ services:
     container_name: ubuntu
     shm_size: 512m
     environment:
-      - VNC_PW=gb19980923 
+      - VNC_PW=密码 
     volumes:
       - /mnt/sda1:/mnt/sda1
     ports:
@@ -378,6 +387,8 @@ https://www.v2ex.com/t/768628
 
 测试配置文件是否正确`nginx -t -c /etc/nginx/uci.conf`
 
+测试详情`nginx -T -c /etc/nginx/uci.conf`
+
 它引入了`/etc/nginx/conf.d/*.conf`作为server，`/etc/nginx/conf.d/*.location`作为location
 
 ### 使用nginx来访问原本的管理页面
@@ -395,6 +406,99 @@ server {
     
     server_name openwrt.iceg.ga;
 
+    access_log /var/log/nginx/openwrt_access.log;
+    error_log /var/log/nginx/openwrt_error.log;    
+
+    location /alist/ {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host "alist.iceg.ga";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Range $http_range;
+        proxy_set_header If-Range $http_if_range;
+        proxy_redirect off;
+        proxy_pass https://alist.iceg.ga:443/;
+        # the max size of file to upload
+        client_max_body_size 20000m;
+    }
+
+    location /clash/ {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host "clash.iceg.ga";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Range $http_range;
+        proxy_set_header If-Range $http_if_range;
+        proxy_redirect off;
+        proxy_pass https://clash.iceg.ga:443/;
+        # the max size of file to upload
+        client_max_body_size 20000m;
+    }
+
+    location /code/ {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host "code.iceg.ga";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Range $http_range;
+        proxy_set_header If-Range $http_if_range;
+        proxy_redirect off;
+        proxy_pass https://code.iceg.ga:443/;
+        # the max size of file to upload
+        client_max_body_size 20000m;
+    }
+
+    location /emby/ {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host "emby.iceg.ga";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Range $http_range;
+        proxy_set_header If-Range $http_if_range;
+        proxy_redirect off;
+        proxy_pass https://emby.iceg.ga:443/;
+        # the max size of file to upload
+        client_max_body_size 20000m;
+    }
+
+    location /portainer/ {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host "portainer.iceg.ga";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Range $http_range;
+        proxy_set_header If-Range $http_if_range;
+        proxy_redirect off;
+        proxy_pass https://portainer.iceg.ga:443/;
+        # the max size of file to upload
+        client_max_body_size 20000m;
+    }
+
+    location /qbittorrent/ {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host "qbittorrent.iceg.ga";
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Range $http_range;
+        proxy_set_header If-Range $http_if_range;
+        proxy_redirect off;
+        proxy_pass https://qbittorrent.iceg.ga:443/;
+        # the max size of file to upload
+        client_max_body_size 20000m;
+    }
+
     location / {
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
@@ -405,11 +509,111 @@ server {
         proxy_set_header Range $http_range;
         proxy_set_header If-Range $http_if_range;
         proxy_redirect off;
-        proxy_pass http://127.0.0.1:10000;
+        proxy_pass http://192.168.5.1:10000;
         # the max size of file to upload
         client_max_body_size 20000m;
     }
 }
+```
+
+### nginx 代理alist
+
+由于加了一个路径，alist那边的config.json中需要配置site_url为`https://openwrt.iceg.ga/alist`
+
+我安装的alist服务它默认没这个配置，需要添加
+
+`config_get site_url $1 site_url "https://openwrt.iceg.ga/alist"`
+
+新建配置文件时把site_url写入进去
+
+`cat > $CONFIG_DIR/config.json <<EOF
+{"force":false,"address":"$listen_addr","port":$port,"site_url":"$site_url","cdn":"","jwt_secret":"","token_expires_in":$token_expires_in,"database":{"type":"sqlite3","host":"","port":0,"user":"","password":"","name":"","db_file":"/etc/alist/data.db","table_prefix":"x_","ssl_mode":""},"scheme":{"https":$SSL,"cert_file":"$ssl_cert","key_file":"$ssl_key"},"temp_dir":"$temp_dir","log":{"enable":$LOG,"name":"$temp_dir/alist.log","max_size":10,"max_backups":5,"max_age":28,"compress":false}}
+EOF`
+
+```
+#!/bin/sh /etc/rc.common
+
+START=99
+USE_PROCD=1
+PROG=/usr/bin/alist
+CONFIG_DIR=/etc/alist
+
+get_config() {
+	config_get_bool enabled $1 enabled 1
+	config_get port $1 port 5244
+	config_get site_url $1 site_url "https://openwrt.iceg.ga/alist"
+	config_get log $1 log 1
+	config_get temp_dir $1 temp_dir "/tmp/alist"
+	config_get ssl $1 ssl 0
+	config_get ssl_cert $1 ssl_cert ""
+	config_get ssl_key $1 ssl_key ""
+	config_get token_expires_in $1 token_expires_in 48
+	config_get allow_wan $1 allow_wan 0
+	config_load network
+	config_get lan_addr lan ipaddr "0.0.0.0"
+}
+
+set_firewall() {
+	if [ "$external_access" = "allow" ]; then
+		uci -q delete firewall.alist
+		uci set firewall.alist=rule
+		uci set firewall.alist.name="alist"
+		uci set firewall.alist.target="ACCEPT"
+		uci set firewall.alist.src="wan"
+		uci set firewall.alist.proto="tcp"
+		uci set firewall.alist.dest_port="$port"
+		uci set firewall.alist.enabled="1"
+		uci commit firewall
+		/etc/init.d/firewall reload >/dev/null 2>&1
+	elif [ "$external_access" = "deny" ]; then
+		uci -q delete firewall.alist
+		uci commit firewall
+		/etc/init.d/firewall reload >/dev/null 2>&1
+	fi
+}
+
+start_service() {
+	config_load alist
+	config_foreach get_config alist
+	[ $enabled != 1 ] && return 1
+	mkdir -p $temp_dir
+	[ "$ssl" -eq 1 ] && SSL=true || SSL=false
+	[ "$log" -eq 1 ] && LOG=true || LOG=false
+	if [ "$allow_wan" -eq "1" ]; then
+		listen_addr="0.0.0.0"
+		external_access="allow"
+	else
+		listen_addr=$lan_addr
+		external_access="deny"
+	fi
+	set_firewall
+	cat /dev/null > $temp_dir/alist.log
+	cat > $CONFIG_DIR/config.json <<EOF
+{"force":false,"address":"$listen_addr","port":$port,"site_url":"$site_url","cdn":"","jwt_secret":"","token_expires_in":$token_expires_in,"database":{"type":"sqlite3","host":"","port":0,"user":"","password":"","name":"","db_file":"/etc/alist/data.db","table_prefix":"x_","ssl_mode":""},"scheme":{"https":$SSL,"cert_file":"$ssl_cert","key_file":"$ssl_key"},"temp_dir":"$temp_dir","log":{"enable":$LOG,"name":"$temp_dir/alist.log","max_size":10,"max_backups":5,"max_age":28,"compress":false}}
+EOF
+	procd_open_instance alist
+	procd_set_param command $PROG
+	procd_append_param command server --data $CONFIG_DIR
+	procd_set_param stdout 1
+	procd_set_param stderr 1
+	procd_set_param respawn
+	procd_close_instance alist
+}
+
+service_triggers() {
+	procd_add_reload_trigger "alist"
+}
+
+stop_service() {
+	external_access="deny"
+	set_firewall
+}
+
+reload_service() {
+	stop
+	start
+}
+
 ```
 
 ### 信任cloudflare的证书
