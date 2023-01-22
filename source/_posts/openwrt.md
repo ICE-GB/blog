@@ -186,20 +186,31 @@ https://yuanfangblog.xyz/technology/159.html
 主要思路是部署一个伪装成mb3admin.com的https服务，本地安装自己的ca根证书，用这个根证书签一个mb3admin.com的证书，验证时返回成功
 
 ```
-location /admin/service/registration/validateDevice
-  return 200 '{"cacheExpirationDays": 3650,"message": "Device Valid (limit not checked)","resultCode": "GOOD"}';
+    location /admin/service/registration/validateDevice {
+        default_type "application/json";
+        return 200 '{"cacheExpirationDays": 3650,"message": "Device Valid (limit not checked)","resultCode": "GOOD"}';
+    }
 
-location /admin/service/registration/validate 
-  return 200 '{"featId": "","registered": true,"expDate": "2099-01-01","key": ""}';
+    location /admin/service/registration/validate {
+        default_type "application/json";
+        return 200 '{"featId": "","registered": true,"expDate": "2099-01-01","key": ""}';
+    }
+        
 
-location /admin/service/registration/getStatus 
-  return 200 '{planType: "Lifetime", deviceStatus: 0, subscriptions: []}';
+    location /admin/service/registration/getStatus {
+        default_type "application/json";
+        return 200 '{planType: "Lifetime", deviceStatus: 0, subscriptions: []}';
+    }
 
-location /admin/service/appstore/register 
-  return 200 '{"featId": "","registered": true,"expDate": "2099-01-01","key": ""}';
+    location /admin/service/appstore/register {
+        default_type "application/json";
+        return 200 '{"featId": "","registered": true,"expDate": "2099-01-01","key": ""}';
+    }
 
-location /emby/Plugins/SecurityInfo 
-  return 200 '{SupporterKey: "", IsMBSupporter: true}';
+    location /emby/Plugins/SecurityInfo {
+        default_type "application/json";
+        return 200 '{SupporterKey: "", IsMBSupporter: true}';
+    }
 ```
 
 注意
@@ -243,9 +254,9 @@ https://blog.csdn.net/iamlihongwei/article/details/79377657
 
 在这里我记录一下
 
-10000 openwrt web ui
-10001 vs code server
-10002 qbittorrent
+- 10000 openwrt web ui
+- ~~10001 vs code server~~
+- 10002 qbittorrent
 
 ## code-server
 
@@ -265,7 +276,7 @@ services:
       - HASHED_PASSWORD= #optional
       - SUDO_PASSWORD=密码 #optional
       - SUDO_PASSWORD_HASH= #optional
-      - PROXY_DOMAIN=code.iceg.ga #optional
+      - PROXY_DOMAIN=code.awnlzw.com #optional
       - DEFAULT_WORKSPACE=/root/workspace #optional
       - DOCKER_USER=root
     volumes:
@@ -321,9 +332,9 @@ apt install python3-pip -y
 
 pip install requests
 
-git config --global user.name iceg
+git config --global user.name awnlzw
 
-git config --global user.email iceg@iceg.ga
+git config --global user.email awnlzw@awnlzw.com
 
 git clone git@github.com:ICE-GB/blog.git
 
@@ -404,11 +415,11 @@ https://www.v2ex.com/t/768628
 ```
 server {
     listen       443 ssl;
-
-    ssl_certificate    /etc/nginx/conf.d/iceg.ga.pem;
-    ssl_certificate_key    /etc/nginx/conf.d/iceg.ga.key;
     
-    server_name openwrt.iceg.ga;
+    server_name openwrt.awnlzw.com;
+
+    ssl_certificate    /etc/nginx/conf.d/awnlzw.com.pem;
+    ssl_certificate_key    /etc/nginx/conf.d/awnlzw.com.key;
 
     access_log /var/log/nginx/openwrt_access.log;
     error_log /var/log/nginx/openwrt_error.log;    
@@ -418,12 +429,12 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host "alist.iceg.ga";
+        proxy_set_header Host "alist.awnlzw.com";
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Range $http_range;
         proxy_set_header If-Range $http_if_range;
         proxy_redirect off;
-        proxy_pass https://alist.iceg.ga:443/;
+        proxy_pass https://alist.awnlzw.com:443/;
         # the max size of file to upload
         client_max_body_size 20000m;
     }
@@ -433,12 +444,12 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host "clash.iceg.ga";
+        proxy_set_header Host "clash.awnlzw.com";
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Range $http_range;
         proxy_set_header If-Range $http_if_range;
         proxy_redirect off;
-        proxy_pass https://clash.iceg.ga:443/;
+        proxy_pass https://clash.awnlzw.com:443/;
         # the max size of file to upload
         client_max_body_size 20000m;
     }
@@ -448,12 +459,12 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host "code.iceg.ga";
+        proxy_set_header Host "code.awnlzw.com";
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Range $http_range;
         proxy_set_header If-Range $http_if_range;
         proxy_redirect off;
-        proxy_pass https://code.iceg.ga:443/;
+        proxy_pass https://code.awnlzw.com:443/;
         # the max size of file to upload
         client_max_body_size 20000m;
     }
@@ -463,12 +474,12 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host "emby.iceg.ga";
+        proxy_set_header Host "emby.awnlzw.com";
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Range $http_range;
         proxy_set_header If-Range $http_if_range;
         proxy_redirect off;
-        proxy_pass https://emby.iceg.ga:443/;
+        proxy_pass https://emby.awnlzw.com:443/;
         # the max size of file to upload
         client_max_body_size 20000m;
     }
@@ -478,12 +489,12 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host "portainer.iceg.ga";
+        proxy_set_header Host "portainer.awnlzw.com";
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Range $http_range;
         proxy_set_header If-Range $http_if_range;
         proxy_redirect off;
-        proxy_pass https://portainer.iceg.ga:443/;
+        proxy_pass https://portainer.awnlzw.com:443/;
         # the max size of file to upload
         client_max_body_size 20000m;
     }
@@ -493,12 +504,12 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host "qbittorrent.iceg.ga";
+        proxy_set_header Host "qbittorrent.awnlzw.com";
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Range $http_range;
         proxy_set_header If-Range $http_if_range;
         proxy_redirect off;
-        proxy_pass https://qbittorrent.iceg.ga:443/;
+        proxy_pass https://qbittorrent.awnlzw.com:443/;
         # the max size of file to upload
         client_max_body_size 20000m;
     }
@@ -508,12 +519,12 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host "ubuntu.iceg.ga";
+        proxy_set_header Host "ubuntu.awnlzw.com";
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header Range $http_range;
         proxy_set_header If-Range $http_if_range;
         proxy_redirect off;
-        proxy_pass https://ubuntu.iceg.ga:443/;
+        proxy_pass https://ubuntu.awnlzw.com:443/;
         # the max size of file to upload
         client_max_body_size 20000m;
     }
@@ -537,11 +548,11 @@ server {
 
 ### nginx 代理alist
 
-由于加了一个路径，alist那边的config.json中需要配置site_url为`https://openwrt.iceg.ga/alist`
+由于加了一个路径，alist那边的config.json中需要配置site_url为`https://openwrt.awnlzw.com/alist`
 
 我安装的alist服务它默认没这个配置，需要添加
 
-`config_get site_url $1 site_url "https://openwrt.iceg.ga/alist"`
+`config_get site_url $1 site_url "https://openwrt.awnlzw.com/alist"`
 
 新建配置文件时把site_url写入进去
 
@@ -560,7 +571,7 @@ CONFIG_DIR=/etc/alist
 get_config() {
 	config_get_bool enabled $1 enabled 1
 	config_get port $1 port 5244
-	config_get site_url $1 site_url "https://openwrt.iceg.ga/alist"
+	config_get site_url $1 site_url "https://openwrt.awnlzw.com/alist"
 	config_get log $1 log 1
 	config_get temp_dir $1 temp_dir "/tmp/alist"
 	config_get ssl $1 ssl 0
