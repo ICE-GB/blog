@@ -646,8 +646,6 @@ reload_service() {
 
 ```
 
-### 信任cloudflare的证书
-
 ### 开放到外网
 
 - 新建server块监听非标端口，防火墙打开端口
@@ -690,7 +688,7 @@ reload_service() {
 - 禁止ip访问
 - 启用拒绝 TLS 握手，防止ip访问时获取证书中的域名信息
 - 使用ip访问时，弹出到https访问
-- 添加cloudflare ip 白名单
+- 添加cloudflare ip 白名单`https://www.cloudflare.com/ips-v4`
 
 最终配置：
 ```
@@ -728,6 +726,9 @@ server {
 
         underscores_in_headers on;
 
+        # 请求头太大
+        large_client_header_buffers 4 32k;
+
         # cloudflare 白名单
         allow 173.245.48.0/20;
         allow 103.21.244.0/22;
@@ -758,6 +759,10 @@ server {
 }
 ```
 
+### 信任cloudflare的证书
+
 注意：由于用的是cloudflare签的源服务器证书，内网直接host指定ip不经过cloudflare时需要在浏览器所在的电脑上安装cloudflare的ca根证书
 
 https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/#:~:text=Some%20origin%20web%20servers%20require%20upload%20of%20the%20Cloudflare%20Origin%20CA%20root%20certificate.%20Click%20a%20link%20below%20to%20download%20either%20an%20RSA%20and%20ECC%20version%20of%20the%20Cloudflare%20Origin%20CA%20root%20certificate%3A
+
+### 使用cloudflare zero trust 保护
