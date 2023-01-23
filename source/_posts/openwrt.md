@@ -648,6 +648,116 @@ reload_service() {
 
 ### 信任cloudflare的证书
 
-由于用的是cloudflare签的证书，需要在浏览器所在的电脑上安装cloudflare的ca根证书
+### 开放到外网
+
+- 新建server块监听非标端口，防火墙打开端口
+- 使用cloudflare worker路由转发，将`openwrt.awnlzw.com`转发到`openwrt-awnlzw-com.proxy.awnlzw.com:23333`
+  ```javascript
+  let Svr = {
+        "Host": "proxy.awnlzw.com",
+        "Port": 23333,
+        "Protocol": "https"
+  };
+  addEventListener(
+    "fetch",
+    (e) => {
+      let Url = new URL(e.request.url);
+      Url.host = Url.hostname.replaceAll(".","-") + "." + Svr.Host;
+      Url.port = Svr.Port;
+      Url.protocol = Svr.Protocol + ":";
+      let Req = new Request(Url,e.request);
+      Req.headers.set('X-Real-Host', e.request.headers.get('Host'));
+      let Res = fetch(Req).then((d)=>{
+        if(d.status < 500){
+          return d;
+        } else {
+          return new Response(d.status + " " + d.statusText, {
+            headers: {
+              "content-type": "text/html;charset=UTF-8",
+            },
+            status: d.status,
+            statusText: d.statusText
+          });
+        }
+      });
+      e.respondWith(Res);
+    }
+  )
+  ```
+- cloudflare申请包含`*.proxy.awnlzw.com`的源服务器证书
+- nginx 配置证书
+- nginx根据worker提供的`X-Real-Host`替换`host`
+- 禁止ip访问
+- 启用拒绝 TLS 握手，防止ip访问时获取证书中的域名信息
+- 使用ip访问时，弹出到https访问
+- 添加cloudflare ip 白名单
+
+最终配置：
+```
+log_format  custom '$remote_addr - $remote_user [$time_local] '
+                         	     '"$request" $status $body_bytes_sent '
+                                 '"$http_x_real_host" '
+                      		     '"$http_referer" "$http_user_agent" '
+                     		     '"$http_x_forwarded_for" $request_id ';
+
+#禁止IP访问 
+server { 
+        listen 23333 ssl default_server; 
+        server_name _; 
+
+        # 启用拒绝 TLS 握手
+        ssl_reject_handshake    on;
+        ssl_certificate    /etc/nginx/conf.d/awnlzw.com.pem;
+        ssl_certificate_key    /etc/nginx/conf.d/awnlzw.com.key;
+
+        # If they come here using HTTP, bounce them to the correct scheme
+        error_page 497 https://$host:$server_port$request_uri;
+}
+
+server {
+        listen 23333 ssl;
+        listen [::]:23333 ssl;
+
+        server_name *.proxy.awnlzw.com;
+
+        ssl_certificate    /etc/nginx/conf.d/awnlzw.com.pem;
+        ssl_certificate_key    /etc/nginx/conf.d/awnlzw.com.key;
+
+        access_log /var/log/nginx/transit_access.log custom;
+        error_log /var/log/nginx/transitt_error.log; 
+
+        underscores_in_headers on;
+
+        # cloudflare 白名单
+        allow 173.245.48.0/20;
+        allow 103.21.244.0/22;
+        allow 103.22.200.0/22;
+        allow 103.31.4.0/22;
+        allow 141.101.64.0/18;
+        allow 108.162.192.0/18;
+        allow 190.93.240.0/20;
+        allow 188.114.96.0/20;
+        allow 197.234.240.0/22;
+        allow 198.41.128.0/17;
+        allow 162.158.0.0/15;
+        allow 104.16.0.0/13;
+        allow 104.24.0.0/14;
+        allow 172.64.0.0/13;
+        allow 131.0.72.0/22;
+
+        deny all;
+
+        location / {
+            if ($http_x_real_host != "openwrt.awnlzw.com") { # WebSocket协商失败时返回404
+                return 500;
+            }
+            proxy_set_header Host $http_x_real_host;
+            proxy_set_header X-Real-Host "";
+            proxy_pass https://127.0.0.1:443;
+        }
+}
+```
+
+注意：由于用的是cloudflare签的源服务器证书，内网直接host指定ip不经过cloudflare时需要在浏览器所在的电脑上安装cloudflare的ca根证书
 
 https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/#:~:text=Some%20origin%20web%20servers%20require%20upload%20of%20the%20Cloudflare%20Origin%20CA%20root%20certificate.%20Click%20a%20link%20below%20to%20download%20either%20an%20RSA%20and%20ECC%20version%20of%20the%20Cloudflare%20Origin%20CA%20root%20certificate%3A
