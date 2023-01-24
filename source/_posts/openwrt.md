@@ -766,3 +766,13 @@ server {
 https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/#:~:text=Some%20origin%20web%20servers%20require%20upload%20of%20the%20Cloudflare%20Origin%20CA%20root%20certificate.%20Click%20a%20link%20below%20to%20download%20either%20an%20RSA%20and%20ECC%20version%20of%20the%20Cloudflare%20Origin%20CA%20root%20certificate%3A
 
 ### 使用cloudflare zero trust 保护
+
+## 启用ipv6
+
+参考`https://www.bilibili.com/read/cv16621055`
+
+- wan口高级设置中勾选使用内置的ipv6管理，获取ipv6地址改为自动
+- lan口基本设置中ipv6分配长度改为64，高级设置中勾选使用内置的ipv6管理
+- lan口下方的ipv6设置中，路由通告服务改为混合模式，dhcpv6服务停用，ndp代理停用，勾选总是通告默认路由
+- DHCP/DNS高级设置中取消勾选禁止解析ipv6DNS记录
+- openclash中DNS设置勾选允许ipv6类型DNS解析，模式设置勾选ipv6流量代理
