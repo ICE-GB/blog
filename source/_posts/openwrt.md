@@ -776,3 +776,10 @@ https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/#:~:text=So
 - lan口下方的ipv6设置中，路由通告服务改为混合模式，dhcpv6服务停用，ndp代理停用，勾选总是通告默认路由
 - DHCP/DNS高级设置中取消勾选禁止解析ipv6DNS记录
 - openclash中DNS设置勾选允许ipv6类型DNS解析，模式设置勾选ipv6流量代理
+
+## 域名解析
+
+- 本机 hosts文件
+- openwrt hosts文件
+- dnsmasq 域名劫持
+- openclash 域名劫持
