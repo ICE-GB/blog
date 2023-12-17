@@ -779,7 +779,10 @@ https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/#:~:text=So
 
 ## 域名解析
 
-- 本机 hosts文件
-- openwrt hosts文件
-- dnsmasq 域名劫持
-- openclash 域名劫持
+> 参考`https://alecthw.github.io/p/2023/11/fuck-gfw/`
+
+- dnsmasq的53端口
+- 开启openclash dns劫持后 到clash的7874端口
+- 然后到达clash配置的上游dns服务器，本地的mosdns的5335端口
+- mosdns发起的向境外的dns服务器的dns请求被clash捕获进行代理
+
