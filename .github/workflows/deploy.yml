@@ -1,0 +1,37 @@
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  build:
+    name: Build web pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - run: npm install
+
+      - run: npm run build
+
+      - name: Setup SSH key
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          mkdir -p $HOME/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > $HOME/.ssh/id_ed25519
+          echo "StrictHostKeyChecking no" > $HOME/.ssh/config
+          chmod -R 500 $HOME/.ssh
+
+      - name: Rsync files over SSH
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        run: |
+          sudo apt-get install -y rsync
+          rsync -avzr --delete-after -e "ssh -p${{ secrets.SERVER_PORT }}" dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/var/www/web/site/blog/
+
