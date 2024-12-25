@@ -1,4 +1,5 @@
 on:
+  workflow_dispatch: # Manual dispatch
   push:
     branches:
       - 'main'
